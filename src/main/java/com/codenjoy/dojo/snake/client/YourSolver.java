@@ -29,8 +29,9 @@ import com.codenjoy.dojo.services.Dice;
 import com.codenjoy.dojo.services.Direction;
 import com.codenjoy.dojo.services.Point;
 import com.codenjoy.dojo.services.RandomDice;
+import org.eclipse.jetty.util.ArrayQueue;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * User: erom.mdn@gmail.com
@@ -39,6 +40,7 @@ public class YourSolver implements Solver<Board> {
 
     private Dice dice;
     private Board board;
+    private int cornerStoneLoL = -1;
 
     public YourSolver(Dice dice) {
         this.dice = dice;
@@ -67,6 +69,25 @@ public class YourSolver implements Solver<Board> {
             result[1] = right;
             result[2] = down;
             result[3] = left; */
+
+        if (cornerStoneLoL == 0){
+            cornerStoneLoL += 1;
+            return moveLeft();
+        } else if (cornerStoneLoL == 1){
+            cornerStoneLoL += 1;
+            if (dirs[3]){
+                return moveLeft();
+            } else {
+                return moveUp();
+            }
+        } else if (cornerStoneLoL == 2){
+            cornerStoneLoL = -1;
+            if (dirs[3]){
+                return moveDown();
+            } else {
+                return moveUp();
+            }
+        }
 
         //Target is on the bottom row, to the right from the header.
         if (targetY == 0 && headY != 0 && targetX > headX){
@@ -104,7 +125,7 @@ public class YourSolver implements Solver<Board> {
 
 
 
-       /* if (targetX < headX && dirs[3]){
+        if (targetX < headX && dirs[3]){
 
             return Direction.LEFT.toString();
         }
@@ -123,7 +144,7 @@ public class YourSolver implements Solver<Board> {
         if (targetY > headY && dirs[0]){
 
             return Direction.UP.toString();
-        }*/
+        }
 
 
 
@@ -141,7 +162,7 @@ public class YourSolver implements Solver<Board> {
         return Direction.UP.toString();
     }
 
-    public boolean[] avoidSuicide(){
+    private boolean[] avoidSuicide(){
         Point head = board.getHead();
         Point stone = board.getStones().get(0);
         List<Point> walls = board.getBarriers();
@@ -229,8 +250,157 @@ public class YourSolver implements Solver<Board> {
 
     }
 
+  /*  class GridPoint{
+        private int x;
+        private int y;
+        private int dist;
+
+        GridPoint(int x, int y, int dist){
+            this.x = x;
+            this.y = y;
+            this.dist = dist;
+        }
+    }*/
+
+   /* private int shortestPath(){
+
+        Point head = board.getHead();
+        List<Point> stone = board.getStones();
+        List<Point> walls = board.getBarriers();
+        List<Point> snake = board.getSnake();
+        GridPoint source = new GridPoint(head.getX(), head.getY(), 0);
+
+        // setup array with visited locations
+        boolean[][] visited = new boolean[12][12];
+        for(Point el:stone){
+            visited[el.getX()][el.getY()] = true;
+        }
+
+        for(Point el:walls){
+            visited[el.getX()][el.getY()] = true;
+        }
+
+        for(Point el:snake){
+            visited[el.getX()][el.getY()] = true;
+        }
+
+        for(Point el:stone){
+            visited[el.getX()][el.getY()] = true;
+        }
+        visited[head.getX()][head.getY()] = true;
+
+
+        Queue<GridPoint> q = new Queue<GridPoint>() {
+            @Override
+            public boolean add(GridPoint gridPoint) {
+                return false;
+            }
+
+            @Override
+            public boolean offer(GridPoint gridPoint) {
+                return false;
+            }
+
+            @Override
+            public GridPoint remove() {
+                return null;
+            }
+
+            @Override
+            public GridPoint poll() {
+                return null;
+            }
+
+            @Override
+            public GridPoint element() {
+                return null;
+            }
+
+            @Override
+            public GridPoint peek() {
+                return null;
+            }
+
+            @Override
+            public int size() {
+                return 0;
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return false;
+            }
+
+            @Override
+            public boolean contains(Object o) {
+                return false;
+            }
+
+            @Override
+            public Iterator<GridPoint> iterator() {
+                return null;
+            }
+
+            @Override
+            public Object[] toArray() {
+                return new Object[0];
+            }
+
+            @Override
+            public <T> T[] toArray(T[] a) {
+                return null;
+            }
+
+            @Override
+            public boolean remove(Object o) {
+                return false;
+            }
+
+            @Override
+            public boolean containsAll(Collection<?> c) {
+                return false;
+            }
+
+            @Override
+            public boolean addAll(Collection<? extends GridPoint> c) {
+                return false;
+            }
+
+            @Override
+            public boolean removeAll(Collection<?> c) {
+                return false;
+            }
+
+            @Override
+            public boolean retainAll(Collection<?> c) {
+                return false;
+            }
+
+            @Override
+            public void clear() {
+
+            }
+        };
+        q.add(source);
+
+        while(!q.isEmpty()){
+
+
+        }
+    }*/
+
     public String moveLeft(){
-        return Direction.LEFT.toString();
+        boolean[] dirs = avoidSuicide();
+          result[0] = up;
+            result[1] = right;
+            result[2] = down;
+            result[3] = left;
+        if (dirs[3]){
+            return Direction.LEFT.toString();
+        }else{
+            cornerStoneLoL = 0;
+            return Direction.UP.toString();
+        }
     }
 
     public String moveRight(){
