@@ -25,10 +25,7 @@ package com.codenjoy.dojo.snake.client;
 
 import com.codenjoy.dojo.client.Solver;
 import com.codenjoy.dojo.client.WebSocketRunner;
-import com.codenjoy.dojo.services.Dice;
-import com.codenjoy.dojo.services.Direction;
-import com.codenjoy.dojo.services.Point;
-import com.codenjoy.dojo.services.RandomDice;
+import com.codenjoy.dojo.services.*;
 import org.eclipse.jetty.util.ArrayQueue;
 
 import java.util.*;
@@ -36,6 +33,7 @@ import java.util.*;
 /**
  * User: erom.mdn@gmail.com
  */
+
 public class YourSolver implements Solver<Board> {
 
     private Dice dice;
@@ -64,13 +62,29 @@ public class YourSolver implements Solver<Board> {
             headX = headPos.getX();
             headY = headPos.getY();
         }
-        boolean[] dirs = avoidSuicide();
-        /*  result[0] = up;
-            result[1] = right;
-            result[2] = down;
-            result[3] = left; */
 
-        if (cornerStoneLoL == 0){
+        Graph g = new Graph(15*15);
+        createGraph(g);
+
+        int headNode = nodeNumber(headX, headY);
+        int dest = nodeNumber(targetX, targetY);
+
+        List<Integer> res = g.BFS(headNode, dest);
+        // create list that will contain shortest path to target
+        List<Point> path = new LinkedList<>();
+
+        for (Integer el: res){
+            System.out.println(el+ " ");
+            Point p = pointFromNodeNum(el);
+            path.add(p);
+        }
+
+
+
+
+        return Direction.UP.toString();
+
+        /*if (cornerStoneLoL == 0){
             cornerStoneLoL += 1;
             return moveLeft();
         } else if (cornerStoneLoL == 1){
@@ -87,9 +101,9 @@ public class YourSolver implements Solver<Board> {
             } else {
                 return moveUp();
             }
-        }
+        }*/
 
-        //Target is on the bottom row, to the right from the header.
+        /*//Target is on the bottom row, to the right from the header.
         if (targetY == 0 && headY != 0 && targetX > headX){
             return moveRight();
         // Target on the bottom row, to the left or right under the header.
@@ -119,12 +133,12 @@ public class YourSolver implements Solver<Board> {
             } else {
                 return moveDown();
             }
-        }
+        }*/
 
 
 
 
-
+/*
         if (targetX < headX && dirs[3]){
 
             return Direction.LEFT.toString();
@@ -144,7 +158,7 @@ public class YourSolver implements Solver<Board> {
         if (targetY > headY && dirs[0]){
 
             return Direction.UP.toString();
-        }
+        }*/
 
 
 
@@ -159,7 +173,60 @@ public class YourSolver implements Solver<Board> {
             return Direction.LEFT.toString();
         }*/
 
-        return Direction.UP.toString();
+
+    }
+    private Point pointFromNodeNum(int nodeNum){
+        int cord1 = nodeNum%15;
+        int cord2 = (nodeNum - cord1)/15+1;
+        return new PointImpl(cord1, cord2);
+    }
+
+    private int nodeNumber(int x, int y){
+        return x + 15 * (y - 1);
+    }
+
+    // 15x15 field
+    private void createGraph(Graph g){
+        int node = -1;
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                node += 1;
+                if (j == 0 && i == 0) {
+                    g.addEdge(node, node + 1);
+                    g.addEdge(node, node + 15);
+                } else if (j == 14 && i == 0) {
+                    g.addEdge(node, node - 1);
+                    g.addEdge(node, node + 15);
+                } else if (j == 0 && i == 14) {
+                    g.addEdge(node, node + 1);
+                    g.addEdge(node, node - 15);
+                } else if (j == 14 && i == 14) {
+                    g.addEdge(node, node - 1);
+                    g.addEdge(node, node - 15);
+                } else if (i == 0) {
+                    g.addEdge(node, node + 1);
+                    g.addEdge(node, node + 15);
+                    g.addEdge(node, node - 1);
+                } else if (i == 14) {
+                    g.addEdge(node, node + 1);
+                    g.addEdge(node, node - 15);
+                    g.addEdge(node, node - 1);
+                } else if (j == 14) {
+                    g.addEdge(node, node - 1);
+                    g.addEdge(node, node - 15);
+                    g.addEdge(node, node + 15);
+                } else if (j == 0) {
+                    g.addEdge(node, node + 1);
+                    g.addEdge(node, node - 15);
+                    g.addEdge(node, node + 15);
+                } else {
+                    g.addEdge(node, node + 1);
+                    g.addEdge(node, node + 15);
+                    g.addEdge(node, node - 15);
+                    g.addEdge(node, node - 1);
+                }
+            }
+        }
     }
 
     private boolean[] avoidSuicide(){
@@ -388,6 +455,7 @@ public class YourSolver implements Solver<Board> {
 
         }
     }*/
+/*
 
     public String moveLeft(){
         boolean[] dirs = avoidSuicide();
@@ -414,6 +482,7 @@ public class YourSolver implements Solver<Board> {
     public String moveDown(){
         return Direction.DOWN.toString();
     }
+*/
 
 
 
