@@ -6,6 +6,7 @@ class Graph {
 
     private Integer V;   // No. of vertices
     private LinkedList<Integer> adj[]; //Adjacency Lists
+    boolean visited[] = new boolean[V]; // visited nodes
 
     // Constructor
     Graph(Integer v) {
@@ -20,15 +21,16 @@ class Graph {
         adj[v].add(w);                         // fill linked lists with connections
     }
 
+    void addBarriers(int nodeNum){
+        visited[nodeNum] = true;
+    }
+
     // prints BFS traversal from a given source s
     List<Integer> BFS(Integer start, int dest) {
         // Mark all the vertices as not visited(By default
         // set as false)
 
         // ---------------- !!!  Add step to mark unpassable vertices as visited !!! ---------------------
-        boolean visited[] = new boolean[V];
-        visited[3] = true;
-        visited[5] = true;
 
         // Create a queue for BFS
         LinkedList<Integer> queue = new LinkedList<Integer>();

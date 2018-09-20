@@ -26,7 +26,6 @@ package com.codenjoy.dojo.snake.client;
 import com.codenjoy.dojo.client.Solver;
 import com.codenjoy.dojo.client.WebSocketRunner;
 import com.codenjoy.dojo.services.*;
-import org.eclipse.jetty.util.ArrayQueue;
 
 import java.util.*;
 
@@ -51,6 +50,9 @@ public class YourSolver implements Solver<Board> {
 
         Point applePos = board.getApples().get(0);
         Point headPos = board.getHead();
+        Point stone = board.getStones().get(0);
+        List<Point> walls = board.getBarriers();
+        List<Point> snake = board.getSnake();
 
         int headX;
         int headY;
@@ -63,116 +65,35 @@ public class YourSolver implements Solver<Board> {
             headY = headPos.getY();
         }
 
+        // Create Graph of nodes, connect them, mark obstacles.
         Graph g = new Graph(15*15);
         createGraph(g);
+        g.addBarriers(nodeNumberFromPoint(stone));
+        for(Point wall:walls){
+            g.addBarriers(nodeNumberFromPoint(wall));
+        }
+        for(Point el:snake){
+            g.addBarriers(nodeNumberFromPoint(el));
+        }
 
-        int headNode = nodeNumber(headX, headY);
-        int dest = nodeNumber(targetX, targetY);
+
+        int headNode = nodeNumberFromCoord(headX, headY);
+        int dest = nodeNumberFromCoord(targetX, targetY);
 
         List<Integer> res = g.BFS(headNode, dest);
-        // create list that will contain shortest path to target
-        List<Point> path = new LinkedList<>();
 
+        // get list of points with shortest path to the target
+        LinkedList<Point> path = new LinkedList<>();
         for (Integer el: res){
-            System.out.println(el+ " ");
             Point p = pointFromNodeNum(el);
             path.add(p);
         }
 
-
-
-
-        return Direction.UP.toString();
-
-        /*if (cornerStoneLoL == 0){
-            cornerStoneLoL += 1;
-            return moveLeft();
-        } else if (cornerStoneLoL == 1){
-            cornerStoneLoL += 1;
-            if (dirs[3]){
-                return moveLeft();
-            } else {
-                return moveUp();
-            }
-        } else if (cornerStoneLoL == 2){
-            cornerStoneLoL = -1;
-            if (dirs[3]){
-                return moveDown();
-            } else {
-                return moveUp();
-            }
-        }*/
-
-        /*//Target is on the bottom row, to the right from the header.
-        if (targetY == 0 && headY != 0 && targetX > headX){
-            return moveRight();
-        // Target on the bottom row, to the left or right under the header.
-        } else if (targetY == 0 && headY != 0 && targetX <= headX){
-            return moveDown();
-        // Target and header both on the bottom row, target is to the left from the header.
-        } else if (targetY == 0 && headY ==0 && targetX < headX){
-            return moveLeft();
-        // Target and head both on the bottom row, target is to the right from the header.
-        } else if (targetY == 0 && headY == 0 && targetX > headX){
-            if (headX - 1 > 0){
-                return moveLeft();
-            } else{
-                return moveUp();
-            }
-        // target to the right and above the head
-        } else if (targetX >= headX && targetY >= headY){
-            if (targetY != headY){
-                return moveUp();
-            } else {
-                return moveRight();
-            }
-        // Target to the right and below the head
-        } else if (targetX >= headX && targetY < headY){
-            if(targetX != headX){
-                return moveRight();
-            } else {
-                return moveDown();
-            }
-        }*/
-
-
-
-
-/*
-        if (targetX < headX && dirs[3]){
-
-            return Direction.LEFT.toString();
-        }
-
-        if (targetX > headX && dirs[1]){
-
-            return Direction.RIGHT.toString();
-        }
-
-        if (targetY < headY && dirs[2]){
-
+        if(path.size() > 0){
+            return moveToPoint(headPos, path.poll());
+        } else {
             return Direction.DOWN.toString();
-
         }
-
-        if (targetY > headY && dirs[0]){
-
-            return Direction.UP.toString();
-        }*/
-
-
-
-
-        /*if(dirs[0]){
-            return Direction.UP.toString();
-        } else if (dirs[1]){
-            return Direction.RIGHT.toString();
-        } else if (dirs[2]){
-            return Direction.DOWN.toString();
-        } else if (dirs[3]){
-            return Direction.LEFT.toString();
-        }*/
-
 
     }
     private Point pointFromNodeNum(int nodeNum){
@@ -181,12 +102,16 @@ public class YourSolver implements Solver<Board> {
         return new PointImpl(cord1, cord2);
     }
 
-    private int nodeNumber(int x, int y){
+    private int nodeNumberFromCoord(int x, int y){
         return x + 15 * (y - 1);
     }
 
-    // 15x15 field
+    private int nodeNumberFromPoint(Point p){
+        return p.getX() + 15 * (p.getY() - 1);
+    }
+
     private void createGraph(Graph g){
+        // 15x15 field
         int node = -1;
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
@@ -317,173 +242,19 @@ public class YourSolver implements Solver<Board> {
 
     }
 
-  /*  class GridPoint{
-        private int x;
-        private int y;
-        private int dist;
-
-        GridPoint(int x, int y, int dist){
-            this.x = x;
-            this.y = y;
-            this.dist = dist;
-        }
-    }*/
-
-   /* private int shortestPath(){
-
-        Point head = board.getHead();
-        List<Point> stone = board.getStones();
-        List<Point> walls = board.getBarriers();
-        List<Point> snake = board.getSnake();
-        GridPoint source = new GridPoint(head.getX(), head.getY(), 0);
-
-        // setup array with visited locations
-        boolean[][] visited = new boolean[12][12];
-        for(Point el:stone){
-            visited[el.getX()][el.getY()] = true;
-        }
-
-        for(Point el:walls){
-            visited[el.getX()][el.getY()] = true;
-        }
-
-        for(Point el:snake){
-            visited[el.getX()][el.getY()] = true;
-        }
-
-        for(Point el:stone){
-            visited[el.getX()][el.getY()] = true;
-        }
-        visited[head.getX()][head.getY()] = true;
-
-
-        Queue<GridPoint> q = new Queue<GridPoint>() {
-            @Override
-            public boolean add(GridPoint gridPoint) {
-                return false;
-            }
-
-            @Override
-            public boolean offer(GridPoint gridPoint) {
-                return false;
-            }
-
-            @Override
-            public GridPoint remove() {
-                return null;
-            }
-
-            @Override
-            public GridPoint poll() {
-                return null;
-            }
-
-            @Override
-            public GridPoint element() {
-                return null;
-            }
-
-            @Override
-            public GridPoint peek() {
-                return null;
-            }
-
-            @Override
-            public int size() {
-                return 0;
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return false;
-            }
-
-            @Override
-            public boolean contains(Object o) {
-                return false;
-            }
-
-            @Override
-            public Iterator<GridPoint> iterator() {
-                return null;
-            }
-
-            @Override
-            public Object[] toArray() {
-                return new Object[0];
-            }
-
-            @Override
-            public <T> T[] toArray(T[] a) {
-                return null;
-            }
-
-            @Override
-            public boolean remove(Object o) {
-                return false;
-            }
-
-            @Override
-            public boolean containsAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public boolean addAll(Collection<? extends GridPoint> c) {
-                return false;
-            }
-
-            @Override
-            public boolean removeAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public boolean retainAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public void clear() {
-
-            }
-        };
-        q.add(source);
-
-        while(!q.isEmpty()){
-
-
-        }
-    }*/
-/*
-
-    public String moveLeft(){
-        boolean[] dirs = avoidSuicide();
-          result[0] = up;
-            result[1] = right;
-            result[2] = down;
-            result[3] = left;
-        if (dirs[3]){
-            return Direction.LEFT.toString();
-        }else{
-            cornerStoneLoL = 0;
+    private String moveToPoint(Point source, Point target){
+        if(target.getY() < source.getY()){
+            return Direction.DOWN.toString();
+        } else if (target.getY() > source.getY()){
             return Direction.UP.toString();
+        } else if (target.getX() < source.getX()){
+            return Direction.LEFT.toString();
+        } else if (target.getX() > source.getX()){
+            return Direction.RIGHT.toString();
+        } else {
+            return null;
         }
     }
-
-    public String moveRight(){
-        return Direction.RIGHT.toString();
-    }
-
-    public String moveUp(){
-        return Direction.UP.toString();
-    }
-
-    public String moveDown(){
-        return Direction.DOWN.toString();
-    }
-*/
-
 
 
     public static void main(String[] args) {
