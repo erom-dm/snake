@@ -51,7 +51,7 @@ public class YourSolver implements Solver<Board> {
         Point applePos = board.getApples().get(0);
         Point headPos = board.getHead();
         Point stone = board.getStones().get(0);
-        List<Point> walls = board.getBarriers();
+        List<Point> walls = board.getWalls();
         List<Point> snake = board.getSnake();
 
         int headX;
@@ -66,7 +66,7 @@ public class YourSolver implements Solver<Board> {
         }
 
         // Create Graph of nodes, connect them, mark obstacles.
-        Graph g = new Graph(15*15);
+        Graph g = new Graph(225);
         createGraph(g);
         g.addBarriers(nodeNumberFromPoint(stone));
         for(Point wall:walls){
@@ -103,11 +103,11 @@ public class YourSolver implements Solver<Board> {
     }
 
     private int nodeNumberFromCoord(int x, int y){
-        return x + 15 * (y - 1);
+        return x + 15 * y;
     }
 
     private int nodeNumberFromPoint(Point p){
-        return p.getX() + 15 * (p.getY() - 1);
+        return p.getX() + 15 * p.getY();
     }
 
     private void createGraph(Graph g){
@@ -252,7 +252,8 @@ public class YourSolver implements Solver<Board> {
         } else if (target.getX() > source.getX()){
             return Direction.RIGHT.toString();
         } else {
-            return null;
+            ////ph
+            return Direction.DOWN.toString();
         }
     }
 
@@ -260,7 +261,7 @@ public class YourSolver implements Solver<Board> {
     public static void main(String[] args) {
         WebSocketRunner.runClient(
                 // paste here board page url from browser after registration
-                "http://104.248.24.36/codenjoy-contest/board/player/erom.mdn@gmail.com?code=12345678901234567890",
+                "http://104.248.24.36/codenjoy-contest/board/player/erom@gmail.com?code=12345678901234567890",
                 new YourSolver(new RandomDice()),
                 new Board());
     }

@@ -6,11 +6,12 @@ class Graph {
 
     private Integer V;   // No. of vertices
     private LinkedList<Integer> adj[]; //Adjacency Lists
-    boolean visited[] = new boolean[V]; // visited nodes
+    boolean visited[]; // visited nodes
 
     // Constructor
     Graph(Integer v) {
         V = v;
+        visited = new boolean[V];
         adj = new LinkedList[v];               // initialize empty array, v = number of vertices
         for (int i = 0; i < v; ++i)
             adj[i] = new LinkedList();         // fill array with 25 empty LinkedLists<Integer>
