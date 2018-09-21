@@ -149,7 +149,7 @@ public class YourSolver implements Solver<Board> {
 
     private Point pointFromNodeNum(int nodeNum){
         int cord1 = nodeNum%15;
-        int cord2 = (nodeNum - cord1)/15;
+        int cord2 = (nodeNum - cord1)/15+1;
         return new PointImpl(cord1, cord2);
     }
 
