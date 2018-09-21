@@ -78,7 +78,7 @@ public class YourSolver implements Solver<Board> {
 
 
         int headNode = nodeNumberFromCoord(headX, headY);
-        int dest = nodeNumberFromCoord(targetX, targetY);
+        int dest = nodeNumberFromPoint(applePos);
 
         List<Integer> res = g.BFS(headNode, dest);
 
@@ -90,12 +90,20 @@ public class YourSolver implements Solver<Board> {
         }
 
         if(path.size() > 0){
-            return moveToPoint(headPos, path.poll());
+            Point nextPoint = path.poll();
+            String nextStep = moveToPoint(headPos, nextPoint);
+            // Check if its possible to get out of the pocket, after picking up the apple.
+            if (checkPocket(g, nextPoint, applePos)){
+                return nextStep;
+            } else {
+                return stepReverse(nextStep);
+            }
         } else {
             return Direction.DOWN.toString();
         }
 
     }
+
     private Point pointFromNodeNum(int nodeNum){
         int cord1 = nodeNum%15;
         int cord2 = (nodeNum - cord1)/15;
@@ -254,6 +262,31 @@ public class YourSolver implements Solver<Board> {
         } else {
             ////ph
             return Direction.DOWN.toString();
+        }
+    }
+
+    private boolean checkPocket(Graph g,Point left, Point right){
+        List<Integer> res = g.BFS(nodeNumberFromPoint(left), nodeNumberFromPoint(right));
+        LinkedList<Point> path = new LinkedList<>();
+        for (Integer el: res){
+            Point p = pointFromNodeNum(el);
+            path.add(p);
+        }
+        // returns false if 2 points are not connected, true if there is a path.
+        return path.size() > 0;
+    }
+
+    private String stepReverse(String step){
+        if (step.equals("RIGHT")){
+            return "LEFT";
+        } else if (step.equals("LEFT")){
+            return "RIGHT";
+        } else if (step.equals("UP")){
+            return "DOWN";
+        } else if (step.equals("DOWN")){
+            return "UP";
+        } else {
+            return "RIGHT";
         }
     }
 
