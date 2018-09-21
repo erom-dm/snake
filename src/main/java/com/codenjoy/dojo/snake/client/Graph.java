@@ -31,10 +31,10 @@ class Graph {
         // Mark all the vertices as not visited(By default
         // set as false)
 
-        // ---------------- !!!  Add step to mark unpassable vertices as visited !!! ---------------------
+        // ---------------- !!!  Add step to mark un passable vertices as visited !!! ---------------------
 
         // Create a queue for BFS
-        LinkedList<Integer> queue = new LinkedList<Integer>();
+        LinkedList<Integer> queue = new LinkedList<>();
 
         // Map for parent nodes
         Map<Integer, Integer> parentNodes = new HashMap<>();
@@ -74,4 +74,6 @@ class Graph {
         }
         return null;
     }
+
+
 }

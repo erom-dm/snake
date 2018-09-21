@@ -37,7 +37,6 @@ public class YourSolver implements Solver<Board> {
 
     private Dice dice;
     private Board board;
-    private int cornerStoneLoL = -1;
 
     public YourSolver(Dice dice) {
         this.dice = dice;
@@ -48,6 +47,7 @@ public class YourSolver implements Solver<Board> {
         this.board = board;
         System.out.println(board.toString());
 
+        int snakeLen = board.getSnake().size();
         Point applePos = board.getApples().get(0);
         Point headPos = board.getHead();
         Point stone = board.getStones().get(0);
@@ -84,22 +84,65 @@ public class YourSolver implements Solver<Board> {
 
         // get list of points with shortest path to the target
         LinkedList<Point> path = new LinkedList<>();
-        for (Integer el: res){
-            Point p = pointFromNodeNum(el);
-            path.add(p);
+        if(!res.isEmpty()){
+            for (Integer el: res){
+                Point p = pointFromNodeNum(el);
+                path.add(p);
+            }
         }
 
         if(path.size() > 0){
             Point nextPoint = path.poll();
             String nextStep = moveToPoint(headPos, nextPoint);
             // Check if its possible to get out of the pocket, after picking up the apple.
-            if (checkPocket(g, nextPoint, applePos)){
+
+            /*g = new Graph(225);
+            createGraph(g);
+            g.addBarriers(nodeNumberFromPoint(stone));
+            for(Point wall:walls){
+                g.addBarriers(nodeNumberFromPoint(wall));
+            }
+            for(Point el:snake){
+                g.addBarriers(nodeNumberFromPoint(el));
+            }*/
+
+            /*if (checkPocket(g, nextPoint, applePos)){
                 return nextStep;
             } else {
                 return stepReverse(nextStep);
-            }
+            }*/
+            return nextStep;
         } else {
-            return Direction.DOWN.toString();
+            boolean ignoreStone = false;
+            boolean[] dirs = avoidSuicide(ignoreStone);
+            //        result[0] = up;
+            //        result[1] = right;
+            //        result[2] = down;
+            //        result[3] = left;
+
+            if (dirs[1]){
+                return Direction.RIGHT.toString();
+            } else if (dirs[0]){
+                return Direction.UP.toString();
+            } else if (dirs[2]){
+                return Direction.DOWN.toString();
+            } else if (dirs[3]){
+                return Direction.LEFT.toString();
+            } else{
+                ignoreStone = true;
+                dirs = avoidSuicide(ignoreStone);
+                if (dirs[1]){
+                    return Direction.RIGHT.toString();
+                } else if (dirs[0]){
+                    return Direction.UP.toString();
+                } else if (dirs[2]){
+                    return Direction.DOWN.toString();
+                } else if (dirs[3]){
+                    return Direction.LEFT.toString();
+                } else {
+                    return Direction.UP.toString();
+                }
+            }
         }
 
     }
@@ -162,7 +205,7 @@ public class YourSolver implements Solver<Board> {
         }
     }
 
-    private boolean[] avoidSuicide(){
+    private boolean[] avoidSuicide(boolean ignoreStone){
         Point head = board.getHead();
         Point stone = board.getStones().get(0);
         List<Point> walls = board.getBarriers();
@@ -178,7 +221,7 @@ public class YourSolver implements Solver<Board> {
         // ---- top -----
         potentialStep = head.copy();
         potentialStep.move(head.getX(), head.getY()+1);
-        if(potentialStep.itsMe(stone)){
+        if(potentialStep.itsMe(stone) && !ignoreStone){
             up = false;
         }
         for(Point el: walls){
@@ -194,7 +237,7 @@ public class YourSolver implements Solver<Board> {
         // ---- Bot -----
         potentialStep = head.copy();
         potentialStep.move(head.getX(), head.getY()-1);
-        if(potentialStep.itsMe(stone)){
+        if(potentialStep.itsMe(stone) && !ignoreStone){
             down = false;
         }
         for(Point el: walls){
@@ -210,7 +253,7 @@ public class YourSolver implements Solver<Board> {
         // ---- Right -----
         potentialStep = head.copy();
         potentialStep.move(head.getX()+1, head.getY());
-        if(potentialStep.itsMe(stone)){
+        if(potentialStep.itsMe(stone) && !ignoreStone){
             right = false;
         }
         for(Point el: walls){
@@ -226,7 +269,7 @@ public class YourSolver implements Solver<Board> {
         // ---- Left -----
         potentialStep = head.copy();
         potentialStep.move(head.getX()-1, head.getY());
-        if(potentialStep.itsMe(stone)){
+        if(potentialStep.itsMe(stone) && !ignoreStone){
             left = false;
         }
         for(Point el: walls){
@@ -268,9 +311,11 @@ public class YourSolver implements Solver<Board> {
     private boolean checkPocket(Graph g,Point left, Point right){
         List<Integer> res = g.BFS(nodeNumberFromPoint(left), nodeNumberFromPoint(right));
         LinkedList<Point> path = new LinkedList<>();
-        for (Integer el: res){
-            Point p = pointFromNodeNum(el);
-            path.add(p);
+        if (!res.isEmpty()){
+            for (Integer el: res){
+                Point p = pointFromNodeNum(el);
+                path.add(p);
+            }
         }
         // returns false if 2 points are not connected, true if there is a path.
         return path.size() > 0;
