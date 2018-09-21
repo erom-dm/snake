@@ -53,6 +53,11 @@ public class YourSolver implements Solver<Board> {
         Point stone = board.getStones().get(0);
         List<Point> walls = board.getWalls();
         List<Point> snake = board.getSnake();
+        List<Point> bottomRow = new LinkedList<>();
+        for (int i = 0; i < 15; i++){
+            PointImpl node = new PointImpl(i, 0);
+            bottomRow.add(node);
+        }
 
         int headX;
         int headY;
@@ -149,7 +154,7 @@ public class YourSolver implements Solver<Board> {
 
     private Point pointFromNodeNum(int nodeNum){
         int cord1 = nodeNum%15;
-        int cord2 = (nodeNum - cord1)/15+1;
+        int cord2 = (nodeNum - cord1)/15;
         return new PointImpl(cord1, cord2);
     }
 

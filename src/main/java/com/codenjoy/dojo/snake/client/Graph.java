@@ -72,7 +72,8 @@ class Graph {
                 }
             }
         }
-        return null;
+        List<Integer> nothing = new ArrayList<>();
+        return nothing;
     }
 
 
